@@ -1265,6 +1265,14 @@ public class CoreOptions implements Serializable {
                             "When set to true, produce Iceberg metadata after a snapshot is committed, "
                                     + "so that Iceberg readers can read Paimon's raw files.");
 
+    public static final ConfigOption<CommitIsolationLevel> COMMIT_ISOLATION_LEVEL =
+            key("commit.isolation-level")
+                    .enumType(CommitIsolationLevel.class)
+                    .defaultValue(CommitIsolationLevel.READ_COMMITTED)
+                    .withDescription(
+                            "Controls the isolation level of the commit operation, "
+                                    + "with a relaxed isolation level being used by default.");
+
     private final Options options;
 
     public CoreOptions(Map<String, String> options) {
@@ -1894,6 +1902,10 @@ public class CoreOptions implements Serializable {
         return options.get(COMMIT_FORCE_CREATE_SNAPSHOT);
     }
 
+    public CommitIsolationLevel getCommitIsolationLevel() {
+        return options.get(COMMIT_ISOLATION_LEVEL);
+    }
+
     public Map<String, String> getFieldDefaultValues() {
         Map<String, String> defaultValues = new HashMap<>();
         String fieldPrefix = FIELDS_PREFIX + ".";
@@ -2516,6 +2528,12 @@ public class CoreOptions implements Serializable {
     public enum RangeStrategy {
         SIZE,
         QUANTITY
+    }
+
+    /** Commit isolation level. */
+    public enum CommitIsolationLevel {
+        READ_COMMITTED,
+        SERIALIZABLE
     }
 
     /** Specifies the log consistency mode for table. */

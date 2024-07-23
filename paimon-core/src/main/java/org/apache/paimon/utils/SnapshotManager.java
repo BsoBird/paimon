@@ -690,4 +690,68 @@ public class SnapshotManager implements Serializable {
         Path hintFile = new Path(dir, fileName);
         fileIO.overwriteFileUtf8(hintFile, String.valueOf(snapshotId));
     }
+
+    public @Nullable Long latestSnapshotIdWithOutHint() {
+        try {
+            return findByListFiles(Math::max, snapshotDirectory(), SNAPSHOT_PREFIX);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to find latest snapshot id", e);
+        }
+    }
+
+    public boolean removeSnapshot(long snapshotId) {
+        Path path = snapshotPath(snapshotId);
+        try {
+            return fileIO.delete(path, false);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Failed to delete if changelog #" + snapshotId + " exists in path " + path, e);
+        }
+    }
+
+    public boolean removeChangeLog(long snapshotId) {
+        Path path = longLivedChangelogPath(snapshotId);
+        try {
+            return fileIO.delete(path, false);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Failed to delete if changelog #" + snapshotId + " exists in path " + path, e);
+        }
+    }
+
+    public boolean removeSnapshotLatestHint() {
+        Path path = new Path(snapshotDirectory(), LATEST);
+        try {
+            return fileIO.delete(path, false);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete LATEST HINT:" + path);
+        }
+    }
+
+    public boolean removeSnapshotEarliestHint() {
+        Path path = new Path(snapshotDirectory(), EARLIEST);
+        try {
+            return fileIO.delete(path, false);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete LATEST HINT:" + path);
+        }
+    }
+
+    public boolean removeChangeLogLatestHint() {
+        Path path = new Path(changelogDirectory(), LATEST);
+        try {
+            return fileIO.delete(path, false);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete LATEST HINT:" + path);
+        }
+    }
+
+    public boolean removeChangeLogEarliestHint() {
+        Path path = new Path(changelogDirectory(), EARLIEST);
+        try {
+            return fileIO.delete(path, false);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete LATEST HINT:" + path);
+        }
+    }
 }
